@@ -46,9 +46,8 @@ import org.pentaho.di.trans.step.BaseStepData;
  *   
  */
 public class XMLTranformData extends BaseStepData {
-
-  RowMetaInterface outputRowMeta;
-  int outputFieldIndex = -1;
+  public RowMetaInterface outputRowMeta;
+  public RowMetaInterface convertRowMeta;
 
   public XMLTranformData() {
     super();

@@ -111,7 +111,7 @@ public class BaseSelectList {
       return desc;
     }
 
-    public int getId() {
+    public final int getId() {
       return id;
     }
 
