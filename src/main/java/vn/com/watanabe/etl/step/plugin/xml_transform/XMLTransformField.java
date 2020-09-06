@@ -184,6 +184,7 @@ public class XMLTransformField implements Cloneable {
   private String decimalSymbol;
   private String groupSymbol;
   private boolean repeat;
+  private String demlimiter;
 
   public XMLTransformField( final String fieldname ) {
     this.name = fieldname;
@@ -199,6 +200,7 @@ public class XMLTransformField implements Cloneable {
     this.currencySymbol = "";
     this.precision = -1;
     this.repeat = false;
+    this.demlimiter = ",";
   }
 
   public XMLTransformField() {
@@ -222,6 +224,7 @@ public class XMLTransformField implements Cloneable {
     retval.append( "        " ).append( XMLHandler.addTagValue( "precision", getPrecision() ) );
     retval.append( "        " ).append( XMLHandler.addTagValue( "trim_type", getTrimTypeCode() ) );
     retval.append( "        " ).append( XMLHandler.addTagValue( "repeat", isRepeated() ) );
+    retval.append( "        " ).append( XMLHandler.addTagValue( "delimiter", getDemlimiter() ) );
 
     retval.append( "      </field>" ).append( Const.CR );
 
@@ -242,6 +245,7 @@ public class XMLTransformField implements Cloneable {
     setPrecision( Const.toInt( XMLHandler.getTagValue( fnode, "precision" ), -1 ) );
     setTrimType( getTrimTypeByCode( XMLHandler.getTagValue( fnode, "trim_type" ) ) );
     setRepeated( !"N".equalsIgnoreCase( XMLHandler.getTagValue( fnode, "repeat" ) ) );
+    setDemlimiter(XMLHandler.getTagValue( fnode, "delimiter" )  );
   }
 
   public static final int getTrimTypeByCode( final String tt ) {
@@ -444,5 +448,13 @@ public class XMLTransformField implements Cloneable {
 
   public String getResultTypeCode() {
     return getResultTypeCode( resulttype );
+  }
+
+  public String getDemlimiter() {
+    return demlimiter;
+  }
+
+  public void setDemlimiter(String demlimiter) {
+    this.demlimiter = demlimiter;
   }
 }
