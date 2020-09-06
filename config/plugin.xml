@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin
+   id="XMLTransform"
+   iconfile="xml_transform.png"
+   description="XML Transform"
+   tooltip="Read XML Data"
+   category="Transform"
+   classname="vn.com.watanabe.etl.step.plugin.xml_transform.XMLTransformMetaData">
+   <libraries>
+    <library name="xml_transform.jar"/>
+    </libraries>
+</plugin>
