@@ -22,6 +22,7 @@
 
 package vn.com.watanabe.etl.step.plugin.xml_transform;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.widgets.Shell;
@@ -98,6 +99,11 @@ public class XMLTransformMetaData extends BaseStepMeta implements StepMetaInterf
    */
   @Injection( name = "OUTPUT_FIELD" )
   private String outputField;
+
+   /** Is In fields */
+   private String xmlField;
+     /** The fields to import... */
+  private List<XMLTransformField> inputFields=new ArrayList<XMLTransformField>();
 
   /**
    * Constructor should call super() to make sure the base class has a chance to initialize properly.
@@ -323,4 +329,29 @@ public class XMLTransformMetaData extends BaseStepMeta implements StepMetaInterf
       remarks.add( cr );
     }
   }
+  /**
+   * Get XML field.
+   */
+  public String getXMLField() {
+    return xmlField;
+  }
+
+  /**
+   * Set XML field.
+   */
+  public void setXMLField( String xmlField ) {
+    this.xmlField = xmlField;
+  }
+
+  public List<XMLTransformField> getInputFields() {
+    return inputFields;
+  }
+
+  public void setInputFields(List<XMLTransformField> inputFields) {
+    this.inputFields = inputFields;
+  }
+  public void addInputField(XMLTransformField inputField){
+    this.inputFields.add(inputField);
+  }
+  
 }

@@ -1,5 +1,7 @@
 package vn.com.watanabe.etl.step.plugin.xml_transform;
 
+import java.util.List;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -21,6 +23,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.Props;
@@ -122,7 +125,7 @@ public class XMLTransformDialog extends BaseStepDialog implements StepDialogInte
 
         // Set the shell size, based upon previous time...
         setSize();
-        // getData(input);
+        loadData(input);
         // ActiveXmlStreamField();
         // setIncludeFilename();
         // setIncludeRownum();
@@ -205,9 +208,9 @@ public class XMLTransformDialog extends BaseStepDialog implements StepDialogInte
         fdGet.left = new FormAttachment(50, 0);
         fdGet.bottom = new FormAttachment(100, 0);
         wGet.setLayoutData(fdGet);
-
-        // final int FieldsRows = input.getInputFields().length;
-        int FieldsRows = 0;
+        
+        final int FieldsRows = input.getInputFields().size();
+        // int FieldsRows = 0;
         final ColumnInfo[] colinf = new ColumnInfo[] {
                 new ColumnInfo(BaseMessages.getString(PKG, DEFAULT_PREFIX+".FieldsTable.Name.Column"),
                         ColumnInfo.COLUMN_TYPE_TEXT, false),
@@ -325,78 +328,40 @@ public class XMLTransformDialog extends BaseStepDialog implements StepDialogInte
     
       private void ok() {
         try {
-          getInfo( input );
+          saveData( input );
         } catch ( KettleException e ) {
-          new ErrorDialog( shell, BaseMessages.getString( PKG, "GetXMLDataDialog.ErrorParsingData.DialogTitle" ),
-              BaseMessages.getString( PKG, "GetXMLDataDialog.ErrorParsingData.DialogMessage" ), e );
+          new ErrorDialog( shell, BaseMessages.getString( PKG, DEFAULT_PREFIX+".ErrorParsingData.DialogTitle" ),
+              BaseMessages.getString( PKG, DEFAULT_PREFIX+".ErrorParsingData.DialogMessage" ), e );
         }
         dispose();
       }
-      private void getInfo( XMLTransformMetaData in ) throws KettleException {
+      private void saveData( XMLTransformMetaData in ) throws KettleException {
         stepname = wStepname.getText(); // return value
+        in.setXMLField( wXMLField.getText() );
     
-        // // copy info to TextFileInputMeta class (input)
-        // in.setRowLimit( Const.toLong( wLimit.getText(), 0L ) );
-        // in.setPrunePath( wPrunePath.getText() );
-        // in.setLoopXPath( wLoopXPath.getText() );
-        // in.setEncoding( wEncoding.getText() );
-        // in.setFilenameField( wInclFilenameField.getText() );
-        // in.setRowNumberField( wInclRownumField.getText() );
-        // in.setAddResultFile( wAddResult.getSelection() );
-        // in.setIncludeFilename( wInclFilename.getSelection() );
-        // in.setIncludeRowNumber( wInclRownum.getSelection() );
-        // in.setNamespaceAware( wNameSpaceAware.getSelection() );
-        // in.setReadUrl( wreadUrl.getSelection() );
-        // in.setIgnoreComments( wIgnoreComment.getSelection() );
-        // in.setValidating( wValidating.getSelection() );
-        // in.setuseToken( wuseToken.getSelection() );
-        // in.setIgnoreEmptyFile( wIgnoreEmptyFile.getSelection() );
-        // in.setdoNotFailIfNoFile( wdoNotFailIfNoFile.getSelection() );
+        int nrFields = wFields.nrNonEmpty();
+        for ( int i = 0; i < nrFields; i++ ) {
+        XMLTransformField field = new XMLTransformField();
     
-        // in.setInFields( wXMLStreamField.getSelection() );
-        // in.setIsAFile( wXMLIsAFile.getSelection() );
-        // in.setXMLField( wXMLField.getText() );
+          TableItem item = wFields.getNonEmpty( i );
     
-        // int nrFiles = wFilenameList.getItemCount();
-        // int nrFields = wFields.nrNonEmpty();
+          field.setName( item.getText( 1 ) );
+          field.setXPath( item.getText( 2 ) );
+          field.setElementType( XMLTransformField.getElementTypeByDesc( item.getText( 3 ) ) );
+          field.setResultType( XMLTransformField.getResultTypeByDesc( item.getText( 4 ) ) );
+          field.setType( ValueMeta.getType( item.getText( 5 ) ) );
+          field.setFormat( item.getText( 6 ) );
+          field.setLength( Const.toInt( item.getText( 7 ), -1 ) );
+          field.setPrecision( Const.toInt( item.getText( 8 ), -1 ) );
+          field.setCurrencySymbol( item.getText( 9 ) );
+          field.setDecimalSymbol( item.getText( 10 ) );
+          field.setGroupSymbol( item.getText( 11 ) );
+          field.setTrimType( XMLTransformField.getTrimTypeByDesc( item.getText( 12 ) ) );
+          field.setRepeated( BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( item.getText( 13 ) ) );
     
-        // in.allocate( nrFiles, nrFields );
-        // in.setFileName( wFilenameList.getItems( 0 ) );
-        // in.setFileMask( wFilenameList.getItems( 1 ) );
-        // in.setExcludeFileMask( wFilenameList.getItems( 2 ) );
-        // in.setFileRequired( wFilenameList.getItems( 3 ) );
-        // in.setIncludeSubFolders( wFilenameList.getItems( 4 ) );
-    
-        // for ( int i = 0; i < nrFields; i++ ) {
-        //   GetXMLDataField field = new GetXMLDataField();
-    
-        //   TableItem item = wFields.getNonEmpty( i );
-    
-        //   field.setName( item.getText( 1 ) );
-        //   field.setXPath( item.getText( 2 ) );
-        //   field.setElementType( GetXMLDataField.getElementTypeByDesc( item.getText( 3 ) ) );
-        //   field.setResultType( GetXMLDataField.getResultTypeByDesc( item.getText( 4 ) ) );
-        //   field.setType( ValueMeta.getType( item.getText( 5 ) ) );
-        //   field.setFormat( item.getText( 6 ) );
-        //   field.setLength( Const.toInt( item.getText( 7 ), -1 ) );
-        //   field.setPrecision( Const.toInt( item.getText( 8 ), -1 ) );
-        //   field.setCurrencySymbol( item.getText( 9 ) );
-        //   field.setDecimalSymbol( item.getText( 10 ) );
-        //   field.setGroupSymbol( item.getText( 11 ) );
-        //   field.setTrimType( GetXMLDataField.getTrimTypeByDesc( item.getText( 12 ) ) );
-        //   field.setRepeated( BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( item.getText( 13 ) ) );
-    
-        //   // CHECKSTYLE:Indentation:OFF
-        //   in.getInputFields()[i] = field;
-        // }
-        // in.setShortFileNameField( wShortFileFieldName.getText() );
-        // in.setPathField( wPathFieldName.getText() );
-        // in.setIsHiddenField( wIsHiddenName.getText() );
-        // in.setLastModificationDateField( wLastModificationTimeName.getText() );
-        // in.setUriField( wUriName.getText() );
-        // in.setRootUriField( wRootUriName.getText() );
-        // in.setExtensionField( wExtensionFieldName.getText() );
-        // in.setSizeField( wSizeFieldName.getText() );
+          // CHECKSTYLE:Indentation:OFF
+          in.addInputField(field);
+        }
       }
     public void genFileTab(){
         initFileTab();
@@ -508,4 +473,92 @@ public class XMLTransformDialog extends BaseStepDialog implements StepDialogInte
                     BaseMessages.getString(PKG, DEFAULT_PREFIX+".FailedToGetFields.DialogMessage"), ke);
         }
     }
+
+    /**
+   * Read the data from the TextFileInputMeta object and show it in this dialog.
+   * 
+   * @param in
+   *          The TextFileInputMeta object to obtain the data from.
+   */
+  public void loadData( XMLTransformMetaData in ) {
+
+    if ( in.getXMLField() != null ) {
+      wXMLField.setText( in.getXMLField() );
+    }
+
+    logDebug( BaseMessages.getString( PKG, DEFAULT_PREFIX+".Log.GettingFieldsInfo" ) );
+    List<XMLTransformField> inputFields = in.getInputFields();
+    int size = inputFields.size();
+    for ( int i=0; i<size;i++) {
+      XMLTransformField field = inputFields.get(i);
+      if ( field != null ) {
+        TableItem item = wFields.table.getItem( i );
+        String name = field.getName();
+        String xpath = field.getXPath();
+        String element = field.getElementTypeDesc();
+        String resulttype = field.getResultTypeDesc();
+        String type = field.getTypeDesc();
+        String format = field.getFormat();
+        String length = "" + field.getLength();
+        String prec = "" + field.getPrecision();
+        String curr = field.getCurrencySymbol();
+        String group = field.getGroupSymbol();
+        String decim = field.getDecimalSymbol();
+        String trim = field.getTrimTypeDesc();
+        String rep =
+            field.isRepeated() ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages.getString( PKG,
+                "System.Combo.No" );
+
+        if ( name != null ) {
+          item.setText( 1, name );
+        }
+        if ( xpath != null ) {
+          item.setText( 2, xpath );
+        }
+        if ( element != null ) {
+          item.setText( 3, element );
+        }
+        if ( resulttype != null ) {
+          item.setText( 4, resulttype );
+        }
+        if ( type != null ) {
+          item.setText( 5, type );
+        }
+        if ( format != null ) {
+          item.setText( 6, format );
+        }
+        if ( length != null && !"-1".equals( length ) ) {
+          item.setText( 7, length );
+        }
+        if ( prec != null && !"-1".equals( prec ) ) {
+          item.setText( 8, prec );
+        }
+        if ( curr != null ) {
+          item.setText( 9, curr );
+        }
+        if ( decim != null ) {
+          item.setText( 10, decim );
+        }
+        if ( group != null ) {
+          item.setText( 11, group );
+        }
+        if ( trim != null ) {
+          item.setText( 12, trim );
+        }
+        if ( rep != null ) {
+          item.setText( 13, rep );
+        }
+
+      }
+    }
+
+    wFields.removeEmptyRows();
+    wFields.setRowNums();
+    wFields.optWidth( true );
+
+
+    wStepname.selectAll();
+    wStepname.setFocus();
+  }
+
 }
