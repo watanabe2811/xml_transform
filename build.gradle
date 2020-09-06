@@ -23,8 +23,13 @@ repositories {
 dependencies {
     // This dependency is used by the application.
     implementation 'com.google.guava:guava:28.1-jre'
+    
     implementation fileTree(include: ['*.jar'], dir: 'E:/programs/data-integration/lib')
+
+
+    
     implementation fileTree(include: ['*.jar'], dir: 'E:/programs/data-integration/libswt/win64')
+
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'

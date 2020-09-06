@@ -180,32 +180,66 @@ public class XMLTransform extends BaseStep implements StepInterface {
     
     // Grab a row
     final Object[] outputRow = RowDataUtil.resizeArray(r, data.outputRowMeta.size());
-    processParseFields(outputRow, xml);
+    if(xml!=null){
+      XMLReader reader = getReader();
+      reader.bind(xml);
+      processParseFields(outputRow, reader);
+    }
+    
     // Object[] r = getXMLRow();
     // put the row to the output row stream
     putRow(data.outputRowMeta, outputRow);
     return true;
   }
+  public XMLReader getReader(){
+    return new VTDXMLReader();
+  }
 
-  public void processParseFields(Object[] outputRow,String xml) throws KettleValueException {
+  public void processParseFields(Object[] outputRow,XMLReader reader) throws KettleException {
     int currentIndex = numInputFields;
     List<XMLTransformField> inputFields = meta.getInputFields();
     int numFields = inputFields.size();
     for(int i =0; i< numFields; i++){
       XMLTransformField xmlDataField = inputFields.get(i);
-      processPutRow(outputRow, xml, currentIndex, xmlDataField);
+      processPutRow(outputRow, reader, currentIndex, xmlDataField);
       currentIndex++;
     }
   }
 
-  public void processPutRow(Object[] outputRow,String xml, int currentIndex, XMLTransformField xmlDataField)
-      throws KettleValueException {
-      String nodevalue = getFieldValue(xml, xmlDataField);
+  public void processPutRow(Object[] outputRow,XMLReader reader, int currentIndex, 
+  XMLTransformField xmlDataField)
+      throws KettleException {
+      String nodevalue = getFieldValue(reader, xmlDataField);
       nodevalue=trim(nodevalue, xmlDataField);
       pushFieldToRow(outputRow, currentIndex, nodevalue);
   }
-  public String getFieldValue(String xml, XMLTransformField xmlDataField){
-    return System.currentTimeMillis()+"";
+  public String getFieldValue(XMLReader reader, XMLTransformField xmlDataField) throws KettleException {
+    String xpath = xmlDataField.getXPath();
+    String nodevalue=null;
+    int elementType = xmlDataField.getElementType();
+    int type = xmlDataField.getResultType();
+    if(elementType == XMLTransformField.ELEMENT_TYPE_ATTRIBUT.getId()){
+      nodevalue = reader.getAttribute(xpath);
+    }else if(elementType== XMLTransformField.ELEMENT_TYPE_NODE.getId()){
+      if(type == XMLTransformField.RESULT_TYPE_TYPE_SINGLE_NODE.getId()){
+        nodevalue = reader.getFirstNodeXML(xpath);
+      }else{
+        nodevalue = reader.getFirstNodeValue(xpath);
+      }
+    }else if(elementType == XMLTransformField.ELEMENT_TYPE_NODE_MULTI.getId()){
+      if(type == XMLTransformField.RESULT_TYPE_TYPE_SINGLE_NODE.getId()){
+        nodevalue = reader.getNodesXML(xpath);
+      }else if(type== XMLTransformField.RESULT_TYPE_FIST_VALUE.getId()){
+        nodevalue = reader.getFirstNodeValue(xpath);
+      }else if(type== XMLTransformField.RESULT_TYPE_TYPE_SUM.getId()){
+        nodevalue = String.valueOf(reader.getSum(xpath));
+      }else if(type == XMLTransformField.RESULT_TYPE_VALUE_OF.getId()){
+        nodevalue = reader.getNodeValues(xpath, xmlDataField.getDemlimiter());
+      }else if(type == XMLTransformField.RESULT_TYPE_VALUE_OF_FIXED_SIZE.getId()){
+        nodevalue = reader.getNodeValuesFixedSize(xpath, xmlDataField.getDemlimiter(), xmlDataField.getLength());
+      }
+    }
+    return nodevalue;
   }
 
   public String trim(String nodevalue, XMLTransformField xmlDataField) {

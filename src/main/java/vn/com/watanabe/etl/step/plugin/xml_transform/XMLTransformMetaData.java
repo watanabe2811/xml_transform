@@ -353,8 +353,7 @@ public class XMLTransformMetaData extends BaseStepMeta implements StepMetaInterf
         v.setConversionMask( field.getFormat() );
         v.setDecimalSymbol( field.getDecimalSymbol() );
         v.setGroupingSymbol( field.getGroupSymbol() );
-        v.setCurrencySymbol( field.getCurrencySymbol() );
-      
+        v.setCurrencySymbol( field.getCurrencySymbol() );      
         r.addValueMeta( v );
       } catch ( Exception e ) {
         throw new KettleStepException( e );
