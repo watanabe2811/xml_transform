@@ -142,16 +142,23 @@ public class VTDXMLReader implements XMLReader {
             while ((i = autoPilot.evalXPath()) != -1) {   
                 String row=vtdNav.toString(vtdNav.getText());
                 if(row!=null){
-                    size+= row.length();
-                    if(size>= length){
-                        break;
-                    }
+                    size+= row.length();                    
                     if(first){
                         first=false;
+                        // if first and size> length then try substr
+                        if(size>= length){
+                            result.append(row.substring(0, length-1));
+                        }else{
+                            result.append(row);
+                        }
                     }else{
+                        if(size>= length){
+                            break;
+                        }
                         result.append(delimiter);
+                        result.append(row);
                     }
-                    result.append(row);
+                    
                 }                
             }            
             return result.toString();
