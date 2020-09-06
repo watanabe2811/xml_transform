@@ -21,6 +21,8 @@
  ******************************************************************************/
 package vn.com.watanabe.etl.step.plugin.xml_transform;
 
+import java.util.Arrays;
+
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleValueException;
 import org.pentaho.di.core.row.ValueMeta;
@@ -28,6 +30,10 @@ import org.pentaho.di.core.row.ValueMetaInterface;
 import org.pentaho.di.core.xml.XMLHandler;
 import org.pentaho.di.i18n.BaseMessages;
 import org.w3c.dom.Node;
+
+import vn.com.watanabe.etl.step.plugin.xml_transform.BaseSelectList.Item;
+
+
 
 /**
  * Describes an XML field and the position in an XML field.
@@ -37,11 +43,41 @@ import org.w3c.dom.Node;
  */
 public class XMLTransformField implements Cloneable {
   private static Class<?> PKG = XMLTranformData.class; // for i18n purposes, needed by Translator2!!
+  public static String PREFIX_TAG="XMLTransform";
+
+
+  public static final Item ELEMENT_TYPE_NODE =new BaseSelectList.Item(
+    0,
+    "node", 
+    "node",
+    BaseMessages.getString( PKG, PREFIX_TAG+".ElementType.Node" )
+  );
+
+  public static final Item ELEMENT_TYPE_ATTRIBUT =new BaseSelectList.Item(
+    1,
+    "attribute",
+    "attribut",
+    BaseMessages.getString( PKG, PREFIX_TAG+".ElementType.Attribute" ) 
+  );
+
+  public static final Item ELEMENT_TYPE_NODE_MULTI =new BaseSelectList.Item(
+    2,
+    "node_multi",
+    "node_multi",
+    "Node (Multi)"
+  );
+
+
+  public static final BaseSelectList elementTypeCode = new BaseSelectList(new BaseSelectList.Item[]{
+    ELEMENT_TYPE_NODE,
+    ELEMENT_TYPE_ATTRIBUT,
+    ELEMENT_TYPE_NODE_MULTI
+  });
 
   public static final int RESULT_TYPE_VALUE_OF = 0;
   public static final int RESULT_TYPE_TYPE_SINGLE_NODE = 1;
 
-  public static String PREFIX_TAG="XMLTransform";
+  
 
   public static final String[] ResultTypeCode = { "valueof", "singlenode" };
 
@@ -52,9 +88,6 @@ public class XMLTransformField implements Cloneable {
   public static final int TYPE_TRIM_LEFT = 1;
   public static final int TYPE_TRIM_RIGHT = 2;
   public static final int TYPE_TRIM_BOTH = 3;
-
-  public static final int ELEMENT_TYPE_NODE = 0;
-  public static final int ELEMENT_TYPE_ATTRIBUT = 1;
 
   public static final String[] trimTypeCode = { "none", "left", "right", "both" };
 
@@ -76,13 +109,9 @@ public class XMLTransformField implements Cloneable {
   // TODO Sven Boden
   //
   // //////////////////////////////////////////////////////////////
-  public static final String[] ElementTypeCode = { "node", "attribute" };
+  // public static final String[] ElementTypeCode = { "node", "attribute" };
 
-  public static final String[] ElementOldTypeCode = { "node", "attribut" };
-
-  public static final String[] ElementTypeDesc = { BaseMessages.getString( PKG, PREFIX_TAG+".ElementType.Node" ),
-    BaseMessages.getString( PKG, PREFIX_TAG+".ElementType.Attribute" ) };
-
+  
   private String name;
   private String xpath;
   private String resolvedXpath;
@@ -106,7 +135,7 @@ public class XMLTransformField implements Cloneable {
     this.type = ValueMetaInterface.TYPE_STRING;
     this.format = "";
     this.trimtype = TYPE_TRIM_NONE;
-    this.elementtype = ELEMENT_TYPE_NODE;
+    this.elementtype = ELEMENT_TYPE_NODE.getId();
     this.resulttype = RESULT_TYPE_VALUE_OF;
     this.groupSymbol = "";
     this.decimalSymbol = "";
@@ -172,51 +201,25 @@ public class XMLTransformField implements Cloneable {
   }
 
   public static final int getElementTypeByCode( final String tt ) {
-    if ( tt == null ) {
-      return 0;
+    Item typeCode = elementTypeCode.getByName(tt);
+    if(typeCode!=null){
+      return typeCode.getId();
     }
-
-    // / Code to be removed later on as explained in the top of
-    // this file.
-    // //////////////////////////////////////////////////////////////
-    for ( int i = 0; i < ElementOldTypeCode.length; i++ ) {
-      if ( ElementOldTypeCode[i].equalsIgnoreCase( tt ) ) {
-        return i;
-      }
-    }
-    // //////////////////////////////////////////////////////////////
-
-    for ( int i = 0; i < ElementTypeCode.length; i++ ) {
-      if ( ElementTypeCode[i].equalsIgnoreCase( tt ) ) {
-        return i;
-      }
-    }
-
     return 0;
   }
 
   public static final int getTrimTypeByDesc( final String tt ) {
-    if ( tt == null ) {
-      return 0;
-    }
-
-    for ( int i = 0; i < trimTypeDesc.length; i++ ) {
-      if ( trimTypeDesc[i].equalsIgnoreCase( tt ) ) {
-        return i;
-      }
+    Item typeCode = elementTypeCode.getByDesc(tt);
+    if(typeCode!=null){
+      return typeCode.getId();
     }
     return 0;
   }
 
   public static final int getElementTypeByDesc( final String tt ) {
-    if ( tt == null ) {
-      return 0;
-    }
-
-    for ( int i = 0; i < ElementTypeDesc.length; i++ ) {
-      if ( ElementTypeDesc[i].equalsIgnoreCase( tt ) ) {
-        return i;
-      }
+    Item typeCode = elementTypeCode.getByDesc(tt);
+    if(typeCode!=null){
+      return typeCode.getId();
     }
     return 0;
   }
@@ -229,11 +232,13 @@ public class XMLTransformField implements Cloneable {
   }
 
   public static final String getElementTypeCode( final int i ) {
-    // To be changed to the new code once all are converted
-    if ( i < 0 || i >= ElementOldTypeCode.length ) {
-      return ElementOldTypeCode[0];
+    Item value = elementTypeCode.getById(i);
+    if(value!=null){
+      return value.toString();
+    }else{
+      return "";
     }
-    return ElementOldTypeCode[i];
+    
   }
 
   public static final String getTrimTypeDesc( final int i ) {
@@ -244,10 +249,12 @@ public class XMLTransformField implements Cloneable {
   }
 
   public static final String getElementTypeDesc( final int i ) {
-    if ( i < 0 || i >= ElementTypeDesc.length ) {
-      return ElementTypeDesc[0];
+    Item value = elementTypeCode.getById(i);
+    if(value!=null){
+      return value.getDesc();
+    }else{
+      return "";
     }
-    return ElementTypeDesc[i];
   }
 
   public Object clone() {

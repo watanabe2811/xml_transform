@@ -217,7 +217,7 @@ public class XMLTransformDialog extends BaseStepDialog implements StepDialogInte
                 new ColumnInfo(BaseMessages.getString(PKG, DEFAULT_PREFIX+".FieldsTable.XPath.Column"),
                         ColumnInfo.COLUMN_TYPE_TEXT, false),
                 new ColumnInfo(BaseMessages.getString(PKG, DEFAULT_PREFIX+".FieldsTable.Element.Column"),
-                        ColumnInfo.COLUMN_TYPE_CCOMBO, XMLTransformField.ElementTypeDesc, true),
+                        ColumnInfo.COLUMN_TYPE_CCOMBO,XMLTransformField.elementTypeCode.getItemDescs(), true),
                 new ColumnInfo(BaseMessages.getString(PKG, DEFAULT_PREFIX+".FieldsTable.ResultType.Column"),
                         ColumnInfo.COLUMN_TYPE_CCOMBO, XMLTransformField.ResultTypeDesc, true),
                 new ColumnInfo(BaseMessages.getString(PKG, DEFAULT_PREFIX+".FieldsTable.Type.Column"),
