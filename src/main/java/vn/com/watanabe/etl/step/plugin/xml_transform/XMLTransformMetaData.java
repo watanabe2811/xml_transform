@@ -172,10 +172,6 @@ public class XMLTransformMetaData extends BaseStepMeta implements StepMetaInterf
    */
   public Object clone() {
     XMLTransformMetaData retval = (XMLTransformMetaData) super.clone();
-    int size = inputFields.size();
-    for(int i = 0; i< size;i++){
-      retval.inputFields.add(this.inputFields.get(i));
-    }
     return retval;
   }
 
@@ -223,7 +219,7 @@ public class XMLTransformMetaData extends BaseStepMeta implements StepMetaInterf
       Node fields = XMLHandler.getSubNode( stepnode, "fields" );
       int nrFields = XMLHandler.countNodes( fields, "field" );
 
-      inputFields.clear();
+      this.cleanInputField();
 
       for ( int i = 0; i < nrFields; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
@@ -292,7 +288,7 @@ public class XMLTransformMetaData extends BaseStepMeta implements StepMetaInterf
     try {
       int nrFields = rep.countNrStepAttributes( id_step, "field_name" );
 
-      this.inputFields.clear();
+      this.cleanInputField();
       
       for ( int i = 0; i < nrFields; i++ ) {
         XMLTransformField field = new XMLTransformField();
@@ -435,6 +431,9 @@ public class XMLTransformMetaData extends BaseStepMeta implements StepMetaInterf
 
   public List<XMLTransformField> getInputFields() {
     return inputFields;
+  }
+  public void cleanInputField(){
+    this.inputFields.clear();
   }
 
   public void setInputFields(List<XMLTransformField> inputFields) {

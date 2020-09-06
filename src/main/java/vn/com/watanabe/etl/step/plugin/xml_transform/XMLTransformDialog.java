@@ -343,12 +343,11 @@ public class XMLTransformDialog extends BaseStepDialog implements StepDialogInte
     stepname = wStepname.getText(); // return value
     in.setXMLField(wXMLField.getText());
 
+    in.cleanInputField();
     int nrFields = wFields.nrNonEmpty();
     for (int i = 0; i < nrFields; i++) {
       XMLTransformField field = new XMLTransformField();
-
       TableItem item = wFields.getNonEmpty(i);
-
       field.setName(item.getText(1));
       field.setXPath(item.getText(2));
       field.setElementType(XMLTransformField.getElementTypeByDesc(item.getText(3)));
