@@ -150,7 +150,7 @@ public class XMLTransform extends BaseStep implements StepInterface {
 
       // Locate the row index for this step's field
       // If less than 0, the field was not found.
-      data.outputFieldIndex = data.outputRowMeta.indexOfValue( meta.getOutputField() );
+      // data.outputFieldIndex = data.outputRowMeta.indexOfValue( meta.getOutputField() );
       if ( data.outputFieldIndex < 0 ) {
         log.logError( BaseMessages.getString( PKG, "XMLTransform.Error.NoOutputField" ) );
         setErrors( 1L );

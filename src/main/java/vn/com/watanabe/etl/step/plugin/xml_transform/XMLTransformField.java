@@ -43,21 +43,21 @@ import vn.com.watanabe.etl.step.plugin.xml_transform.BaseSelectList.Item;
  */
 public class XMLTransformField implements Cloneable {
   private static Class<?> PKG = XMLTranformData.class; // for i18n purposes, needed by Translator2!!
-  public static String PREFIX_TAG="XMLTransform";
+  public static String DEFAULT_PREFIX="XMLTransform";
 
   // ============= element types ==============
   public static final Item ELEMENT_TYPE_NODE =new BaseSelectList.Item(
     0,
     "node", 
     "node",
-    BaseMessages.getString( PKG, PREFIX_TAG+".ElementType.Node" )
+    BaseMessages.getString( PKG, DEFAULT_PREFIX+".ElementType.Node" )
   );
 
   public static final Item ELEMENT_TYPE_ATTRIBUT =new BaseSelectList.Item(
     1,
     "attribute",
     "attribut",
-    BaseMessages.getString( PKG, PREFIX_TAG+".ElementType.Attribute" ) 
+    BaseMessages.getString( PKG, DEFAULT_PREFIX+".ElementType.Attribute" ) 
   );
 
   public static final Item ELEMENT_TYPE_NODE_MULTI =new BaseSelectList.Item(
@@ -80,14 +80,14 @@ public class XMLTransformField implements Cloneable {
     0,
     "valueof",
     "valueof",
-    BaseMessages.getString( PKG, PREFIX_TAG+".ResultType.ValueOf" )
+    BaseMessages.getString( PKG, DEFAULT_PREFIX+".ResultType.ValueOf" )
   );
 
   public static final Item RESULT_TYPE_TYPE_SINGLE_NODE =new BaseSelectList.Item(
     1,
     "singlenode",
     "singlenode",
-    BaseMessages.getString( PKG, PREFIX_TAG+".ResultType.SingleNode" )
+    BaseMessages.getString( PKG, DEFAULT_PREFIX+".ResultType.SingleNode" )
   );
 
   public static final Item RESULT_TYPE_TYPE_SUM =new BaseSelectList.Item(
@@ -125,25 +125,25 @@ public class XMLTransformField implements Cloneable {
     0,
     "none",
     "none",
-    BaseMessages.getString( PKG, PREFIX_TAG+".TrimType.None" )
+    BaseMessages.getString( PKG, DEFAULT_PREFIX+".TrimType.None" )
   );
   public static final Item TYPE_TRIM_LEFT = new BaseSelectList.Item(
     1,
     "left",
     "left",
-    BaseMessages.getString( PKG, PREFIX_TAG+".TrimType.Left" )
+    BaseMessages.getString( PKG, DEFAULT_PREFIX+".TrimType.Left" )
   );
   public static final Item TYPE_TRIM_RIGHT = new BaseSelectList.Item(
     2,
     "right",
     "right",
-    BaseMessages.getString( PKG, PREFIX_TAG+".TrimType.Right" )
+    BaseMessages.getString( PKG, DEFAULT_PREFIX+".TrimType.Right" )
   );
   public static final Item TYPE_TRIM_BOTH = new BaseSelectList.Item(
     3,
     "both",
     "both",
-    BaseMessages.getString( PKG, PREFIX_TAG+".TrimType.Both" )
+    BaseMessages.getString( PKG, DEFAULT_PREFIX+".TrimType.Both" )
   );
 
   public static final BaseSelectList trimTypeCode = new BaseSelectList(new Item[]{
@@ -277,7 +277,7 @@ public class XMLTransformField implements Cloneable {
   }
 
   public static final String getElementTypeDesc( final int i ) {
-    return ElementTypeCode.getById(i).getValue();
+    return ElementTypeCode.getById(i).getDesc();
   }
 
   public Object clone() {

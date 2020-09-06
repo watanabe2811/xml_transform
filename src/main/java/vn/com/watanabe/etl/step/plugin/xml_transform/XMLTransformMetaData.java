@@ -25,9 +25,11 @@ package vn.com.watanabe.etl.step.plugin.xml_transform;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.checkerframework.checker.units.qual.Prefix;
 import org.eclipse.swt.widgets.Shell;
 import org.pentaho.di.core.CheckResult;
 import org.pentaho.di.core.CheckResultInterface;
+import org.pentaho.di.core.Const;
 import org.pentaho.di.core.annotations.Step;
 import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.di.core.exception.KettleException;
@@ -37,8 +39,11 @@ import org.pentaho.di.core.exception.KettleXMLException;
 import org.pentaho.di.core.injection.Injection;
 import org.pentaho.di.core.injection.InjectionSupported;
 import org.pentaho.di.core.row.RowMetaInterface;
+import org.pentaho.di.core.row.ValueMeta;
 import org.pentaho.di.core.row.ValueMetaInterface;
+import org.pentaho.di.core.row.value.ValueMetaFactory;
 import org.pentaho.di.core.row.value.ValueMetaString;
+import org.pentaho.di.core.util.Utils;
 import org.pentaho.di.core.variables.VariableSpace;
 import org.pentaho.di.core.xml.XMLHandler;
 import org.pentaho.di.i18n.BaseMessages;
@@ -93,12 +98,7 @@ public class XMLTransformMetaData extends BaseStepMeta implements StepMetaInterf
    *  {the package of the class specified}/messages/messages_{locale}.properties   
    */
   private static final Class<?> PKG = XMLTransformMetaData.class; // for i18n purposes
-
-  /**
-   * Stores the name of the field added to the row-stream. 
-   */
-  @Injection( name = "OUTPUT_FIELD" )
-  private String outputField;
+  public static String DEFAULT_PREFIX="XMLTransform";
 
    /** Is In fields */
    private String xmlField;
@@ -155,24 +155,10 @@ public class XMLTransformMetaData extends BaseStepMeta implements StepMetaInterf
    * to sensible defaults. The values set here will be used by Spoon when a new step is created.    
    */
   public void setDefault() {
-    setOutputField( "demo_field" );
+    xmlField = "";
+    this.inputFields.clear();
   }
 
-  /**
-   * Getter for the name of the field added by this step
-   * @return the name of the field added
-   */
-  public String getOutputField() {
-    return outputField;
-  }
-
-  /**
-   * Setter for the name of the field added by this step
-   * @param outputField the name of the field added
-   */
-  public void setOutputField( String outputField ) {
-    this.outputField = outputField;
-  }
 
   /**
    * This method is used when a step is duplicated in Spoon. It needs to return a deep copy of this
@@ -185,7 +171,11 @@ public class XMLTransformMetaData extends BaseStepMeta implements StepMetaInterf
    * @return a deep copy of this
    */
   public Object clone() {
-    Object retval = super.clone();
+    XMLTransformMetaData retval = (XMLTransformMetaData) super.clone();
+    int size = inputFields.size();
+    for(int i = 0; i< size;i++){
+      retval.inputFields.add(this.inputFields.get(i));
+    }
     return retval;
   }
 
@@ -197,12 +187,17 @@ public class XMLTransformMetaData extends BaseStepMeta implements StepMetaInterf
    * 
    * @return a string containing the XML serialization of this step
    */
-  public String getXML() throws KettleValueException {
-    StringBuilder xml = new StringBuilder();
-
-    // only one field to serialize
-    xml.append( XMLHandler.addTagValue( "outputfield", outputField ) );
-    return xml.toString();
+  public String getXML() {
+    StringBuilder retval = new StringBuilder();
+    retval.append( "    <fields>" ).append( Const.CR );
+    int size = inputFields.size();
+    for ( int i = 0; i < size; i++ ) {
+      XMLTransformField field = inputFields.get(i);
+      retval.append( field.getXML() );
+    }
+    retval.append( "    </fields>" ).append( Const.CR );
+    retval.append( "    " ).append( XMLHandler.addTagValue( "XmlField", xmlField ) );
+    return retval.toString();
   }
 
   /**
@@ -217,9 +212,29 @@ public class XMLTransformMetaData extends BaseStepMeta implements StepMetaInterf
    */
   public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws KettleXMLException {
     try {
-      setOutputField( XMLHandler.getNodeValue( XMLHandler.getSubNode( stepnode, "outputfield" ) ) );
+      readData( stepnode );
     } catch ( Exception e ) {
       throw new KettleXMLException( "Demo plugin unable to read step info from XML node", e );
+    }
+  }
+
+  private void readData( Node stepnode ) throws KettleXMLException {
+    try {
+      Node fields = XMLHandler.getSubNode( stepnode, "fields" );
+      int nrFields = XMLHandler.countNodes( fields, "field" );
+
+      inputFields.clear();
+
+      for ( int i = 0; i < nrFields; i++ ) {
+        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
+        XMLTransformField field = new XMLTransformField( fnode );
+        inputFields.add(field);
+      }
+
+      xmlField = XMLHandler.getTagValue( stepnode, "XmlField" );
+    } catch ( Exception e ) {
+      throw new KettleXMLException( BaseMessages.getString( PKG, DEFAULT_PREFIX+ ".Exception.ErrorLoadingXML", e
+          .toString() ) );
     }
   }
 
@@ -233,11 +248,32 @@ public class XMLTransformMetaData extends BaseStepMeta implements StepMetaInterf
    * @param id_step             the id to use for the step  when saving
    */
   public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step )
-      throws KettleException {
+    throws KettleException {
     try {
-      rep.saveStepAttribute( id_transformation, id_step, "outputfield", outputField ); //$NON-NLS-1$
+      int size = inputFields.size();
+      for ( int i = 0; i < size; i++ ) {
+        XMLTransformField field = inputFields.get(i);
+
+        rep.saveStepAttribute( id_transformation, id_step, i, "field_name", field.getName() );
+        rep.saveStepAttribute( id_transformation, id_step, i, "field_xpath", field.getXPath() );
+        rep.saveStepAttribute( id_transformation, id_step, i, "element_type", field.getElementTypeCode() );
+        rep.saveStepAttribute( id_transformation, id_step, i, "result_type", field.getResultTypeCode() );
+        rep.saveStepAttribute( id_transformation, id_step, i, "field_type", field.getTypeDesc() );
+        rep.saveStepAttribute( id_transformation, id_step, i, "field_format", field.getFormat() );
+        rep.saveStepAttribute( id_transformation, id_step, i, "field_currency", field.getCurrencySymbol() );
+        rep.saveStepAttribute( id_transformation, id_step, i, "field_decimal", field.getDecimalSymbol() );
+        rep.saveStepAttribute( id_transformation, id_step, i, "field_group", field.getGroupSymbol() );
+        rep.saveStepAttribute( id_transformation, id_step, i, "field_length", field.getLength() );
+        rep.saveStepAttribute( id_transformation, id_step, i, "field_precision", field.getPrecision() );
+        rep.saveStepAttribute( id_transformation, id_step, i, "field_trim_type", field.getTrimTypeCode() );
+        rep.saveStepAttribute( id_transformation, id_step, i, "field_repeat", field.isRepeated() );
+        rep.saveStepAttribute( id_transformation, id_step, i, "field_delimiter", field.getDemlimiter());
+      }
+
+      rep.saveStepAttribute( id_transformation, id_step, "XmlField", xmlField );
     } catch ( Exception e ) {
-      throw new KettleException( "Unable to save step into repository: " + id_step, e );
+      throw new KettleException( BaseMessages.getString( PKG, DEFAULT_PREFIX+ ".Exception.ErrorSavingToRepository", ""
+          + id_step ), e );
     }
   }
 
@@ -251,11 +287,40 @@ public class XMLTransformMetaData extends BaseStepMeta implements StepMetaInterf
    * @param databases  the databases available in the transformation
    */
   public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases )
-      throws KettleException {
+    throws KettleException {
+
     try {
-      outputField  = rep.getStepAttributeString( id_step, "outputfield" ); //$NON-NLS-1$
+      int nrFields = rep.countNrStepAttributes( id_step, "field_name" );
+
+      this.inputFields.clear();
+      
+      for ( int i = 0; i < nrFields; i++ ) {
+        XMLTransformField field = new XMLTransformField();
+
+        field.setName( rep.getStepAttributeString( id_step, i, "field_name" ) );
+        field.setXPath( rep.getStepAttributeString( id_step, i, "field_xpath" ) );
+        field.setElementType( XMLTransformField.getElementTypeByCode( rep.getStepAttributeString( id_step, i,
+            "element_type" ) ) );
+        field.setResultType( XMLTransformField.getResultTypeByCode( rep
+            .getStepAttributeString( id_step, i, "result_type" ) ) );
+        field.setType( ValueMeta.getType( rep.getStepAttributeString( id_step, i, "field_type" ) ) );
+        field.setFormat( rep.getStepAttributeString( id_step, i, "field_format" ) );
+        field.setCurrencySymbol( rep.getStepAttributeString( id_step, i, "field_currency" ) );
+        field.setDecimalSymbol( rep.getStepAttributeString( id_step, i, "field_decimal" ) );
+        field.setGroupSymbol( rep.getStepAttributeString( id_step, i, "field_group" ) );
+        field.setLength( (int) rep.getStepAttributeInteger( id_step, i, "field_length" ) );
+        field.setPrecision( (int) rep.getStepAttributeInteger( id_step, i, "field_precision" ) );
+        field.setTrimType( XMLTransformField.getTrimTypeByCode( rep
+            .getStepAttributeString( id_step, i, "field_trim_type" ) ) );
+        field.setRepeated( rep.getStepAttributeBoolean( id_step, i, "field_repeat" ) );
+        field.setDemlimiter(rep.getStepAttributeString( id_step, i, "field_delimiter" ));
+
+        inputFields.add(field);
+      }
+
+      xmlField = rep.getStepAttributeString( id_step, "XmlField" );
     } catch ( Exception e ) {
-      throw new KettleException( "Unable to load step from repository", e );
+      throw new KettleException( BaseMessages.getString( PKG, DEFAULT_PREFIX+".Exception.ErrorReadingRepository" ), e );
     }
   }
 
@@ -273,24 +338,34 @@ public class XMLTransformMetaData extends BaseStepMeta implements StepMetaInterf
    * @param repository    the repository instance optionally read from
    * @param metaStore      the metaStore to optionally read from
    */
-  public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
+  public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
       VariableSpace space, Repository repository, IMetaStore metaStore ) throws KettleStepException {
+    int i;
+    int size = inputFields.size();
+    for ( i = 0; i < size; i++ ) {
+      XMLTransformField field = inputFields.get(i);
 
-    /*
-     * This implementation appends the outputField to the row-stream
-     */
+      int type = field.getType();
+      if ( type == ValueMeta.TYPE_NONE ) {
+        type = ValueMeta.TYPE_STRING;
+      }
+      try {
+        ValueMetaInterface v = ValueMetaFactory.createValueMeta( space.environmentSubstitute( field.getName() ), type );
+        v.setLength( field.getLength() );
+        v.setPrecision( field.getPrecision() );
+        v.setOrigin( name );
+        v.setConversionMask( field.getFormat() );
+        v.setDecimalSymbol( field.getDecimalSymbol() );
+        v.setGroupingSymbol( field.getGroupSymbol() );
+        v.setCurrencySymbol( field.getCurrencySymbol() );
+      
+        r.addValueMeta( v );
+      } catch ( Exception e ) {
+        throw new KettleStepException( e );
+      }
+    }
 
-    // a value meta object contains the meta data for a field
-    ValueMetaInterface v = new ValueMetaString( outputField );
-
-    // setting trim type to "both"
-    v.setTrimType( ValueMetaInterface.TRIM_TYPE_BOTH );
-
-    // the name of the step that adds this field
-    v.setOrigin( name );
-
-    // modify the row structure and add the field this step generates  
-    inputRowMeta.addValueMeta( v );
+    // Add additional fields
   }
 
   /**
@@ -318,14 +393,29 @@ public class XMLTransformMetaData extends BaseStepMeta implements StepMetaInterf
       IMetaStore metaStore ) {
     CheckResult cr;
 
-    // See if there are input streams leading to this step!
-    if ( input != null && input.length > 0 ) {
-      cr = new CheckResult( CheckResult.TYPE_RESULT_OK,
-        BaseMessages.getString( PKG, "XMLTransform.CheckResult.ReceivingRows.OK" ), stepMeta );
+    // See if we get input...
+    if ( input.length <= 0 ) {
+      cr =
+          new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
+              DEFAULT_PREFIX+".CheckResult.NoInputExpected" ), stepMeta );
       remarks.add( cr );
     } else {
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR,
-        BaseMessages.getString( PKG, "XMLTransform.CheckResult.ReceivingRows.ERROR" ), stepMeta );
+      cr =
+          new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+          DEFAULT_PREFIX+".CheckResult.NoInput" ), stepMeta );
+      remarks.add( cr );
+    }
+
+    
+    if ( Utils.isEmpty( getXMLField() ) ) {
+      cr =
+          new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
+              "GetXMLDataMeta.CheckResult.NoField" ), stepMeta );
+      remarks.add( cr );
+    } else {
+      cr =
+          new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+              "GetXMLDataMeta.CheckResult.FieldOk" ), stepMeta );
       remarks.add( cr );
     }
   }

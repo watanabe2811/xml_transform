@@ -236,7 +236,7 @@ public class XMLTransformDialog extends BaseStepDialog implements StepDialogInte
             ColumnInfo.COLUMN_TYPE_TEXT, false),
         new ColumnInfo(BaseMessages.getString(PKG, DEFAULT_PREFIX + ".FieldsTable.TrimType.Column"),
             ColumnInfo.COLUMN_TYPE_CCOMBO, XMLTransformField.trimTypeCode.getItemDescs(), true),
-        new ColumnInfo(BaseMessages.getString(PKG, "GetXMLDataDialog.FieldsTable.Repeat.Column"),
+        new ColumnInfo(BaseMessages.getString(PKG, DEFAULT_PREFIX + ".FieldsTable.Repeat.Column"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
             new String[] { BaseMessages.getString(PKG, "System.Combo.Yes"),
                 BaseMessages.getString(PKG, "System.Combo.No") },
