@@ -33,7 +33,7 @@ public class BaseSelectList {
         }
       }
     }
-    return null;
+    return items.get(0);
   }
 
   public Item getByDesc(String checkValue) {
@@ -44,7 +44,7 @@ public class BaseSelectList {
         }
       }
     }
-    return null;
+    return items.get(0);
   }
 
   public Item getById(int id) {
@@ -55,7 +55,7 @@ public class BaseSelectList {
         return items.get(id);
       }
     } else {
-      return null;
+      return items.get(0);
     }
 
   }

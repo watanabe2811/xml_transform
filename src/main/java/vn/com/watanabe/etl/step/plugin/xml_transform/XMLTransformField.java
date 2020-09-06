@@ -45,7 +45,7 @@ public class XMLTransformField implements Cloneable {
   private static Class<?> PKG = XMLTranformData.class; // for i18n purposes, needed by Translator2!!
   public static String PREFIX_TAG="XMLTransform";
 
-
+  // ============= element types ==============
   public static final Item ELEMENT_TYPE_NODE =new BaseSelectList.Item(
     0,
     "node", 
@@ -68,33 +68,90 @@ public class XMLTransformField implements Cloneable {
   );
 
 
-  public static final BaseSelectList elementTypeCode = new BaseSelectList(new BaseSelectList.Item[]{
+  public static final BaseSelectList ElementTypeCode = new BaseSelectList(new BaseSelectList.Item[]{
     ELEMENT_TYPE_NODE,
     ELEMENT_TYPE_ATTRIBUT,
     ELEMENT_TYPE_NODE_MULTI
   });
 
-  public static final int RESULT_TYPE_VALUE_OF = 0;
-  public static final int RESULT_TYPE_TYPE_SINGLE_NODE = 1;
 
+  // ======================== result type
+  public static final Item RESULT_TYPE_VALUE_OF =new BaseSelectList.Item(
+    0,
+    "valueof",
+    "valueof",
+    BaseMessages.getString( PKG, PREFIX_TAG+".ResultType.ValueOf" )
+  );
+
+  public static final Item RESULT_TYPE_TYPE_SINGLE_NODE =new BaseSelectList.Item(
+    1,
+    "singlenode",
+    "singlenode",
+    BaseMessages.getString( PKG, PREFIX_TAG+".ResultType.SingleNode" )
+  );
+
+  public static final Item RESULT_TYPE_TYPE_SUM =new BaseSelectList.Item(
+    2,
+    "sum",
+    "sum",
+    "Sum"
+  );
+  public static final Item RESULT_TYPE_FIST_VALUE =new BaseSelectList.Item(
+    3,
+    "fist_value",
+    "fist_value",
+    "First Value"
+  );
+  public static final Item RESULT_TYPE_VALUE_OF_FIXED_SIZE =new BaseSelectList.Item(
+    4,
+    "value_of_fixed_size",
+    "value_of_fixed_size",
+    "Value of (Fixed Size)"
+  );
   
 
-  public static final String[] ResultTypeCode = { "valueof", "singlenode" };
+  public static final BaseSelectList ResultTypeCode = new BaseSelectList(new Item[]{
+    RESULT_TYPE_VALUE_OF,
+    RESULT_TYPE_TYPE_SINGLE_NODE,
+    RESULT_TYPE_TYPE_SUM,
+    RESULT_TYPE_FIST_VALUE,
+    RESULT_TYPE_VALUE_OF_FIXED_SIZE
+  });
 
-  public static final String[] ResultTypeDesc = { BaseMessages.getString( PKG, PREFIX_TAG+".ResultType.ValueOf" ),
-    BaseMessages.getString( PKG, PREFIX_TAG+".ResultType.SingleNode" ) };
 
-  public static final int TYPE_TRIM_NONE = 0;
-  public static final int TYPE_TRIM_LEFT = 1;
-  public static final int TYPE_TRIM_RIGHT = 2;
-  public static final int TYPE_TRIM_BOTH = 3;
+  // ========== type trim 
 
-  public static final String[] trimTypeCode = { "none", "left", "right", "both" };
+  public static final Item TYPE_TRIM_NONE = new BaseSelectList.Item(
+    0,
+    "none",
+    "none",
+    BaseMessages.getString( PKG, PREFIX_TAG+".TrimType.None" )
+  );
+  public static final Item TYPE_TRIM_LEFT = new BaseSelectList.Item(
+    1,
+    "left",
+    "left",
+    BaseMessages.getString( PKG, PREFIX_TAG+".TrimType.Left" )
+  );
+  public static final Item TYPE_TRIM_RIGHT = new BaseSelectList.Item(
+    2,
+    "right",
+    "right",
+    BaseMessages.getString( PKG, PREFIX_TAG+".TrimType.Right" )
+  );
+  public static final Item TYPE_TRIM_BOTH = new BaseSelectList.Item(
+    3,
+    "both",
+    "both",
+    BaseMessages.getString( PKG, PREFIX_TAG+".TrimType.Both" )
+  );
 
-  public static final String[] trimTypeDesc = { BaseMessages.getString( PKG, PREFIX_TAG+".TrimType.None" ),
-    BaseMessages.getString( PKG, PREFIX_TAG+".TrimType.Left" ),
-    BaseMessages.getString( PKG, PREFIX_TAG+".TrimType.Right" ),
-    BaseMessages.getString( PKG, PREFIX_TAG+".TrimType.Both" ) };
+  public static final BaseSelectList trimTypeCode = new BaseSelectList(new Item[]{
+    TYPE_TRIM_NONE,
+    TYPE_TRIM_LEFT,
+    TYPE_TRIM_RIGHT,
+    TYPE_TRIM_BOTH
+  });
 
   // //////////////////////////////////////////////////////////////
   //
@@ -134,9 +191,9 @@ public class XMLTransformField implements Cloneable {
     this.length = -1;
     this.type = ValueMetaInterface.TYPE_STRING;
     this.format = "";
-    this.trimtype = TYPE_TRIM_NONE;
+    this.trimtype = TYPE_TRIM_NONE.getId();
     this.elementtype = ELEMENT_TYPE_NODE.getId();
-    this.resulttype = RESULT_TYPE_VALUE_OF;
+    this.resulttype = RESULT_TYPE_VALUE_OF.getId();
     this.groupSymbol = "";
     this.decimalSymbol = "";
     this.currencySymbol = "";
@@ -188,73 +245,35 @@ public class XMLTransformField implements Cloneable {
   }
 
   public static final int getTrimTypeByCode( final String tt ) {
-    if ( tt == null ) {
-      return 0;
-    }
-
-    for ( int i = 0; i < trimTypeCode.length; i++ ) {
-      if ( trimTypeCode[i].equalsIgnoreCase( tt ) ) {
-        return i;
-      }
-    }
-    return 0;
+    return trimTypeCode.getByName(tt).getId();
   }
 
   public static final int getElementTypeByCode( final String tt ) {
-    Item typeCode = elementTypeCode.getByName(tt);
-    if(typeCode!=null){
-      return typeCode.getId();
-    }
-    return 0;
+    return ElementTypeCode.getByName(tt).getId();
   }
 
   public static final int getTrimTypeByDesc( final String tt ) {
-    Item typeCode = elementTypeCode.getByDesc(tt);
-    if(typeCode!=null){
-      return typeCode.getId();
-    }
-    return 0;
+    return ElementTypeCode.getByDesc(tt).getId();
   }
 
   public static final int getElementTypeByDesc( final String tt ) {
-    Item typeCode = elementTypeCode.getByDesc(tt);
-    if(typeCode!=null){
-      return typeCode.getId();
-    }
-    return 0;
+    return ElementTypeCode.getByDesc(tt).getId();
   }
 
   public static final String getTrimTypeCode( final int i ) {
-    if ( i < 0 || i >= trimTypeCode.length ) {
-      return trimTypeCode[0];
-    }
-    return trimTypeCode[i];
+    return trimTypeCode.getById(i).getValue();
   }
 
   public static final String getElementTypeCode( final int i ) {
-    Item value = elementTypeCode.getById(i);
-    if(value!=null){
-      return value.toString();
-    }else{
-      return "";
-    }
-    
+    return  ElementTypeCode.getById(i).getValue();
   }
 
   public static final String getTrimTypeDesc( final int i ) {
-    if ( i < 0 || i >= trimTypeDesc.length ) {
-      return trimTypeDesc[0];
-    }
-    return trimTypeDesc[i];
+    return trimTypeCode.getById(i).getDesc();
   }
 
   public static final String getElementTypeDesc( final int i ) {
-    Item value = elementTypeCode.getById(i);
-    if(value!=null){
-      return value.getDesc();
-    }else{
-      return "";
-    }
+    return ElementTypeCode.getById(i).getValue();
   }
 
   public Object clone() {
@@ -396,16 +415,7 @@ public class XMLTransformField implements Cloneable {
   }
 
   public static final int getResultTypeByDesc( final String tt ) {
-    if ( tt == null ) {
-      return 0;
-    }
-
-    for ( int i = 0; i < ResultTypeDesc.length; i++ ) {
-      if ( ResultTypeDesc[i].equalsIgnoreCase( tt ) ) {
-        return i;
-      }
-    }
-    return 0;
+    return ResultTypeCode.getByDesc(tt).getId();
   }
 
   public String getResultTypeDesc() {
@@ -413,10 +423,7 @@ public class XMLTransformField implements Cloneable {
   }
 
   public static final String getResultTypeDesc( final int i ) {
-    if ( i < 0 || i >= ResultTypeDesc.length ) {
-      return ResultTypeDesc[0];
-    }
-    return ResultTypeDesc[i];
+    return ResultTypeCode.getById(i).getDesc();
   }
 
   public int getResultType() {
@@ -428,24 +435,11 @@ public class XMLTransformField implements Cloneable {
   }
 
   public static final int getResultTypeByCode( final String tt ) {
-    if ( tt == null ) {
-      return 0;
-    }
-
-    for ( int i = 0; i < ResultTypeCode.length; i++ ) {
-      if ( ResultTypeCode[i].equalsIgnoreCase( tt ) ) {
-        return i;
-      }
-    }
-
-    return 0;
+    return ResultTypeCode.getByName(tt).getId();
   }
 
   public static final String getResultTypeCode( final int i ) {
-    if ( i < 0 || i >= ResultTypeCode.length ) {
-      return ResultTypeCode[0];
-    }
-    return ResultTypeCode[i];
+    return ResultTypeCode.getById(i).getValue();
   }
 
   public String getResultTypeCode() {
