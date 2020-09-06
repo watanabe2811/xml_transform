@@ -32,5 +32,5 @@ dependencies {
 
 application {
     // Define the main class for the application.
-    mainClassName = 'vn.com.watanabe.etl.step.plugin.App'
+    mainClassName = 'vn.com.watanabe.etl.step.plugin.xml_transform.App'
 }

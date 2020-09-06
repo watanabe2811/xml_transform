@@ -20,7 +20,7 @@
 *
 ******************************************************************************/
 
-package vn.com.watanabe.etl.step.plugin;
+package vn.com.watanabe.etl.step.plugin.xml_transform;
 
 import java.util.List;
 
@@ -76,9 +76,9 @@ import org.w3c.dom.Node;
   id = "XMLTransform",
   name = "XMLTransform.Name",
   description = "XMLTransform.TooltipDesc",
-  image = "org/pentaho/di/sdk/samples/steps/demo/resources/demo.svg",
+  image = "vn/com/watanabe/etl/step/plugin/xml_transform/resources/xml_transform.svg",
   categoryDescription = "i18n:org.pentaho.di.trans.step:BaseStep.Category.Transform",
-  i18nPackageName = "org.pentaho.di.sdk.samples.steps.demo",
+  i18nPackageName = "vn.com.watanabe.etl.step.plugin.xml_transform",
   documentationUrl = "XMLTransform.DocumentationURL",
   casesUrl = "XMLTransform.CasesURL",
   forumUrl = "XMLTransform.ForumURL"

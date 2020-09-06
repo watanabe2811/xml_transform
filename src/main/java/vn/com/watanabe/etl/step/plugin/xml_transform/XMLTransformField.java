@@ -19,7 +19,7 @@
  * limitations under the License.
  *
  ******************************************************************************/
-package vn.com.watanabe.etl.step.plugin;
+package vn.com.watanabe.etl.step.plugin.xml_transform;
 
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleValueException;

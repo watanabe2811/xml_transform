@@ -1,4 +1,4 @@
-package vn.com.watanabe.etl.step.plugin;
+package vn.com.watanabe.etl.step.plugin.xml_transform;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;

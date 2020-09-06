@@ -20,7 +20,7 @@
 *
 ******************************************************************************/
 
-package vn.com.watanabe.etl.step.plugin;
+package vn.com.watanabe.etl.step.plugin.xml_transform;
 
 import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.trans.step.BaseStepData;

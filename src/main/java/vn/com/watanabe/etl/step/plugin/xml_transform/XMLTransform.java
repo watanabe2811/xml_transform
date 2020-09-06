@@ -20,7 +20,7 @@
 *
 ******************************************************************************/
 
-package vn.com.watanabe.etl.step.plugin;
+package vn.com.watanabe.etl.step.plugin.xml_transform;
 
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.row.RowDataUtil;
@@ -152,7 +152,7 @@ public class XMLTransform extends BaseStep implements StepInterface {
       // If less than 0, the field was not found.
       data.outputFieldIndex = data.outputRowMeta.indexOfValue( meta.getOutputField() );
       if ( data.outputFieldIndex < 0 ) {
-        log.logError( BaseMessages.getString( PKG, "DemoStep.Error.NoOutputField" ) );
+        log.logError( BaseMessages.getString( PKG, "XMLTransform.Error.NoOutputField" ) );
         setErrors( 1L );
         setOutputDone();
         return false;
@@ -169,7 +169,7 @@ public class XMLTransform extends BaseStep implements StepInterface {
 
     // log progress if it is time to to so
     if ( checkFeedback( getLinesRead() ) ) {
-      logBasic( BaseMessages.getString( PKG, "DemoStep.Linenr", getLinesRead() ) ); // Some basic logging
+      logBasic( BaseMessages.getString( PKG, "XMLTransform.Linenr", getLinesRead() ) ); // Some basic logging
     }
 
     // indicate that processRow() should be called again
